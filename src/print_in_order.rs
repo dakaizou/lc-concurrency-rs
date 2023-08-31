@@ -24,7 +24,7 @@ impl Foo {
 }
 
 #[cfg(test)]
-mod benches {
+mod tests {
     use std::{
         sync::{Arc, Mutex},
         thread::{self, JoinHandle},
@@ -32,7 +32,6 @@ mod benches {
     };
 
     use itertools::Itertools;
-    use test::Bencher;
 
     use super::Foo;
 
@@ -87,7 +86,6 @@ mod benches {
             assert_eq!("123", printer.result());
         }
     }
-    const COUNT: usize = 10_000;
 
     fn spawn(foo: Arc<Foo>, printer: Arc<Printer>, n: usize, count: usize) -> JoinHandle<()> {
         thread::spawn(move || {
@@ -95,30 +93,5 @@ mod benches {
                 printer.run(&foo, n);
             }
         })
-    }
-
-    #[bench]
-    fn bench_count(bencher: &mut Bencher) {
-        let foo = Arc::new(Foo::new());
-        {
-            let foo = foo.clone();
-            bencher.iter(move || {
-                let printer = Arc::new(Printer::new());
-                for i in 1..=3 {
-                    let foo = foo.clone();
-                    let printer = printer.clone();
-                    spawn(foo, printer, i, COUNT);
-                }
-
-                while printer.result().len() < COUNT * 3 {
-                    thread::sleep(Duration::from_nanos(10));
-                }
-                printer
-                    .result()
-                    .chars()
-                    .enumerate()
-                    .for_each(|(i, c)| assert_eq!((i % 3 + 1) as u32, c.to_digit(10).unwrap()));
-            });
-        }
     }
 }

@@ -1,12 +1,14 @@
 // 1115.
 // https://leetcode.com/problems/print-foobar-alternately/
 #[allow(dead_code)]
-struct FooBar;
+struct FooBar {
+    n: usize,
+}
 
 #[allow(dead_code)]
 impl FooBar {
-    fn new() -> FooBar {
-        FooBar
+    fn new(n: usize) -> FooBar {
+        FooBar { n }
     }
 
     fn foo<F: Fn() -> ()>(&self, print_foo: F) {
@@ -64,7 +66,7 @@ mod benches {
 
     #[test]
     fn order() {
-        let foo = Arc::new(FooBar::new());
+        let foo = Arc::new(FooBar::new(1));
         for data in [1, 2].into_iter().permutations(2) {
             let printer = Arc::new(Printer::new());
             for i in data {
@@ -89,7 +91,7 @@ mod benches {
 
     #[bench]
     fn bench_count(bencher: &mut Bencher) {
-        let foo = Arc::new(FooBar::new());
+        let foo = Arc::new(FooBar::new(COUNT));
         {
             let foo = foo.clone();
             bencher.iter(move || {
